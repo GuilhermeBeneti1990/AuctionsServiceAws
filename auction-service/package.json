@@ -15,13 +15,13 @@
     "webpack": "^2.1.0-beta.22"
   },
   "dependencies": {
-    "@middy/core": "^2.5.7",
-    "@middy/http-error-handler": "^2.5.7",
-    "@middy/http-event-normalizer": "^2.5.7",
-    "@middy/http-json-body-parser": "^2.5.7",
-    "@middy/validator": "^2.5.7",
+    "@middy/core": "^1.0.0-beta.11",
+    "@middy/http-error-handler": "^1.0.0-beta.11",
+    "@middy/http-event-normalizer": "^1.0.0-beta.11",
+    "@middy/http-json-body-parser": "^1.0.0-beta.11",
+    "@middy/validator": "^1.0.0-beta.11",
     "aws-sdk": "^2.639.0",
-    "http-errors": "^2.0.0",
+    "http-errors": "^1.7.3",
     "uuid": "^7.0.3"
   }
 }

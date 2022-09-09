@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 
 const dybamodb = new AWS.DynamoDB.DocumentClient();
+const sqs = new AWS.SQS();
 
 export async function closeAuction(auction) {
     const params = {
@@ -15,7 +16,39 @@ export async function closeAuction(auction) {
         }
     };
 
-    const result = await dybamodb.update(params).promise();
+    await dybamodb.update(params).promise();
 
-    return result;
+    const { title, seller, highestBid } = auction
+    const { amount, bidder } = highestBid;
+
+    if (amount === 0) {
+        await sqs.sendMessage({
+            QueueUrl: process.env.MAIL_QUEUE_URL,
+            MessageBody: JSON.stringify({
+                subject: 'No bids on your auction item :(',
+                recipient: seller,
+                body: `Oh no, your item ${title} didn't get any bids! Better luck next time.`
+            })
+        }).promise();
+    }
+
+    const notifySeller = sqs.sendMessage({
+        QueueUrl: process.env.MAIL_QUEUE_URL,
+        MessageBody: JSON.stringify({
+            subject: 'Your item has been sold!',
+            recipient: seller,
+            body: `Oooh Yeah, your item ${title} has been sold for ${amount}!`
+        })
+    }).promise();
+
+    const notifyBidder = sqs.sendMessage({
+        QueueUrl: process.env.MAIL_QUEUE_URL,
+        MessageBody: JSON.stringify({
+            subject: 'You won an auction',
+            recipient: bidder,
+            body: `What a great deal! You got yourself a ${title} for ${amount}!`
+        })
+    }).promise();
+
+    return Promise.all([notifySeller, notifyBidder]);
 }
